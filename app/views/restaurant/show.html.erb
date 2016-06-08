@@ -1,0 +1,15 @@
+<h2>List of Restaurants in Database</h2>
+<div class="col-md-12">
+  <h2>We have <%= Restaurant.count %> (and counting) restaurants in our database</h2>
+</div>
+<div class="col-md-12" align = "justify">
+  <% count = 0  %>
+  <% @restaurants.each do |rest|  %>
+  <% if count%5 == 0 %>
+    <span style="font-weight:bold"><%= rest.name %></span>
+  <% else %>
+    <%= rest.name %>
+  <% end %>
+    <% count+=1 %>
+  <% end  %>
+</div>

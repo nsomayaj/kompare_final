@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Restaurants</title>
+  <link rel="stylesheet" href="assets/split-pane.css" />
+  <!-- The style sheet below is not part of the split-pane plugin. Feel free to use it, or style things your own way. -->
+  <link rel="stylesheet" href="assets/pretty-split-pane.css" />
+  <script src="assets/bower_components/jquery.min.js"></script>
+  <script src="/assets/js/split-pane.js"></script>
+
+  <style type="text/css">
+
+  html, body {
+    height: 100%;
+    min-height: 100%;
+  }
+
+  #left-component {
+    right: 50%;
+    margin-top: 50px;
+    margin-right: 5px;
+  }
+
+  #my-divider {
+    right: 50%;
+    width: 5px;
+  }
+
+  #right-component {
+    margin-top: 50px;
+    width: 50%;
+  }
+
+  </style>
+
+  <script>
+  $(function() {
+    $('div.split-pane').splitPane();
+    $('button:first').on('click', function() {
+      $('div.split-pane').splitPane('lastComponentSize', 0);
+    });
+    $('button:last').on('click', function() {
+      $('div.split-pane').splitPane('firstComponentSize', 0);
+    });
+  });
+  </script>
+</head>
+<body>
+
+  <div class="pretty-split-pane-frame">
+    <div class="split-pane vertical-percent">
+      <div class="split-pane-component" id="left-component">
+        <div class="pretty-split-pane-component-inner">
+          <h3>Kompare is a recommendation engine that takes your input and finds similar stuff.</h3>
+          <h5>For the Restaurant Tool, pick a city and a restaurant, and we'll give suggestions for similar restaurants in a target city.</h5>
+
+          <form class="margin-above-top-sm" action="/">
+            <input type="hidden" name="my_city" value="<%= @my_city %>">
+
+            <div class="padding-top">
+              <label class="">
+                Choose a favorite restaurant from your homebase city <%= @my_city %>
+              </label>
+                <%= select_tag(:my_rest, options_from_collection_for_select(Restaurant.where(city: @my_city).all, :id, :name), :class => "form-control") %>
+            </div>
+
+            <div class="padding-top">
+              <label class="">
+                Find similar restaurants in
+              </label>
+              <select name = "target_city" class="form-control">
+                <option value="Chicago">Chicago</option>
+                <option value="New York City">New York City (Manhattan)</option>
+                <option value="San Francisco">San Francisco</option>
+                <option value="Boston">Boston</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+              Kompare!
+            </button>
+          </form>
+
+          <form class="margin-above-top-sm" action="" >
+            <div class="padding-top padding-bottom">
+              <label class="">
+                Update your homebase city
+              </label>
+              <select name = "my_city" class = "form-control">
+                <option value="Boston">Boston</option>
+                <option value="Chicago">Chicago</option>
+                <option value="New York City">New York City (Manhattan)</option>
+                <option value="San Francisco">San Francisco</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">
+              Update
+            </button>
+          </form>
+
+        </div>
+      </div>
+
+      <div class="split-pane-divider" id="my-divider"></div>
+      <div class="split-pane-component" id="right-component">
+        <div class="pretty-split-pane-component-inner">
+
+          <h3>We think you might like...</h3>
+
+          <% if @kmeans.cluster.values[@target_str_id].count - 1 > 1 %>
+            <h5>Wow! We found <%= @kmeans.cluster.values[@target_str_id].count - 1 %> restaurants</h5>
+          <% elsif @kmeans.cluster.values[@target_str_id].count - 1 ==1  %>
+            <h5>We found <%= @kmeans.cluster.values[@target_str_id].count - 1 %> restaurant</h5>
+          <% else  %>
+            <h5>Sorry, we didn't find anything that was a good match but we'll keep working on it!</h5>
+          <% end  %>
+
+          <table class="table" >
+            <tr>
+              <td><span style="font-weight:bold"> Restaurant </span></td>
+              <td><span style="font-weight:bold"> Cuisine </span></td>
+              <td><span style="font-weight:bold"> Rating </span></td>
+              <td><span style="font-weight:bold">$ for Two</span></td>
+            </tr>
+
+            <% @kmeans.cluster.values[@target_str_id].each do |rest| %>
+            <tr>
+              <td><a href="<%=@url_hash["#{rest}"]%>"><%= rest %></a></td>
+              <td><%=@cuisine_hash["#{rest}"]%></td>
+              <td><%= @hash["#{rest}"]["rating"].to_f / 10 %></td>
+              <td>$<%= @hash["#{rest}"]["cost"] %></td>
+            </tr>
+            <% end  %>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
